@@ -121,7 +121,7 @@ export default function Discover() {
       <header className="bg-primary px-4 sm:px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Shield className="w-5 h-5 text-primary-foreground" />
-          <span className="text-lg font-semibold text-primary-foreground">TrustDiscover</span>
+          <span className="text-lg font-semibold text-primary-foreground">Trust Your Journey</span>
         </div>
 
         <Link to="/" className="text-sm text-primary-foreground/80 hover:text-primary-foreground">
