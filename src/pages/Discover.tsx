@@ -19,7 +19,7 @@ async function fetchDestinations(ctx: UserContext, sessionId: string): Promise<D
   fetchPromise = (async () => {
     const userMessage = `companion_type is ${ctx.companion_type}, vibe is ${ctx.vibe}, safety_sensitivity is ${ctx.safety_sensitivity}, budget_range is ${ctx.budget_range}, departure_city is ${ctx.departure_city}`;
 
-    const apiKey = 'AIzaSyDkRHAzzzZ-ZqsNH5n05VSsCoUqvGYcbCM';
+    const apiKey = 'AIzaSyC9R-4dYKve2KZOmf5TC9TrBW8lTaUEiFg';
     const res = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
       {
