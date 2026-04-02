@@ -19,7 +19,11 @@ async function fetchDestinations(ctx: UserContext, sessionId: string): Promise<D
   fetchPromise = (async () => {
     const userMessage = `companion_type is ${ctx.companion_type}, vibe is ${ctx.vibe}, safety_sensitivity is ${ctx.safety_sensitivity}, budget_range is ${ctx.budget_range}, departure_city is ${ctx.departure_city}`;
 
-    const apiKey = "AIzaSyBvKNvf1g7kNxOCnEOexff-bKyOq7d6iIY";
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    if (!apiKey) {
+      fetchPromise = null;
+      throw new Error('Gemini API key is not configured. Please set VITE_GEMINI_API_KEY.');
+    }
     const res = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
       {
