@@ -34,7 +34,7 @@ export default function Discover() {
       const userMessage = `companion_type is ${ctx.companion_type}, vibe is ${ctx.vibe}, safety_sensitivity is ${ctx.safety_sensitivity}, budget_range is ${ctx.budget_range}, departure_city is ${ctx.departure_city}`;
 
       try {
-        const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+        const apiKey = "AIzaSyABQDVI_MCNS3-HMZW30zEvyy01W-vuFT8";
         const res = await fetch(
           `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
           {
