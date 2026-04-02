@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Shield } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
@@ -15,8 +15,11 @@ export default function Discover() {
   const [userCtx, setUserCtx] = useState<UserContext | null>(null);
   const [selected, setSelected] = useState<Destination | null>(null);
   const [error, setError] = useState('');
+  const hasRun = useRef(false);
 
   useEffect(() => {
+    if (hasRun.current) return;
+    hasRun.current = true;
     const run = async () => {
       const sessionId = localStorage.getItem('session_id');
       if (!sessionId) { setError('No session found. Please start over.'); setLoading(false); return; }
