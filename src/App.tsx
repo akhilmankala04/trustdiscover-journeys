@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import Home from "./pages/Home";
 import Onboarding from "./pages/Onboarding";
 import Discover from "./pages/Discover";
 import NotFound from "./pages/NotFound";
@@ -16,7 +17,8 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Onboarding />} />
+          <Route path="/" element={<Home />} />
+          <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/discover" element={<Discover />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
