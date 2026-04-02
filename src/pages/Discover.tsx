@@ -18,7 +18,6 @@ export default function Discover() {
   const [userCtx, setUserCtx] = useState<UserContext | null>(null);
   const [selected, setSelected] = useState<Destination | null>(null);
   const [error, setError] = useState('');
-  const hasRun = useRef(false);
 
 useEffect(() => {
     if (apiCallMade) return;
