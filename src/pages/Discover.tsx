@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Shield } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
@@ -6,6 +6,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 import DestinationCard from '@/components/DestinationCard';
 import DetailPanel from '@/components/DetailPanel';
 import type { Destination, UserContext } from '@/types/destination';
+
+// Module-level guard — survives React Strict Mode double-invoke
+let apiCallMade = false;
 
 const SYSTEM_PROMPT = `You are TrustDiscover, an AI travel recommendation engine for Indian travelers. Based on the traveler context provided, return exactly 6 destination recommendations as a valid JSON array with no additional text and no markdown and no code blocks. Each object must have these fields exactly: name as a string for the destination name, tagline as a string of max 12 words personalised to their vibe, trust_score as a number between 60 and 98, trust_label as exactly one of Verified or Mostly verified or Use caution, top_safety_signal as a string of max 10 words describing the top safety feature, budget_match as exactly one of Great value or Good value or Premium, region as a string for the state or region in India, why_you as a string of max 15 words personalised to their travel style and companion type, best_months as a string listing 2 or 3 best months to visit, estimated_cost as a string formatted as approximately ₹X,XXX total from [city] including travel. If safety_sensitivity is 4 or 5 only include destinations with trust_score of 80 or above.`;
 
@@ -17,9 +20,9 @@ export default function Discover() {
   const [error, setError] = useState('');
   const hasRun = useRef(false);
 
-  useEffect(() => {
-    if (hasRun.current) return;
-    hasRun.current = true;
+useEffect(() => {
+    if (apiCallMade) return;
+    apiCallMade = true;
     const run = async () => {
       const sessionId = localStorage.getItem('session_id');
       if (!sessionId) { setError('No session found. Please start over.'); setLoading(false); return; }
