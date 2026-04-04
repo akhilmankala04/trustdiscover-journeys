@@ -181,7 +181,7 @@ export default function Discover() {
       </header>
 
       <main className="flex-1 px-4 sm:px-6 py-8 max-w-4xl mx-auto w-full">
-        {error && (
+        {error && !loading && (
           <div className="text-center mb-4">
             <p className="text-destructive mb-3">{error}</p>
             <button
