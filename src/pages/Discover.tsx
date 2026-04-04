@@ -132,11 +132,32 @@ export default function Discover() {
     run();
   }, []);
 
-  const handleRetry = () => {
+  const handleRetry = useCallback(async () => {
     inflightPromise = null;
     inflightSessionId = null;
-    window.location.reload();
-  };
+    setError('');
+    setLoading(true);
+    setMsgIndex(0);
+    setFade(true);
+
+    if (!userCtx) return;
+    const sessionId = localStorage.getItem('session_id');
+    if (!sessionId) {
+      setError('No session found. Please start over.');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const parsed = await fetchDestinations(userCtx, sessionId);
+      setDestinations(parsed);
+    } catch (e) {
+      console.error(e);
+      setError('Failed to get recommendations. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  }, [userCtx]);
 
   const handleConfirmStartOver = useCallback(() => {
     setShowStartOver(false);
@@ -160,7 +181,7 @@ export default function Discover() {
       </header>
 
       <main className="flex-1 px-4 sm:px-6 py-8 max-w-4xl mx-auto w-full">
-        {error && (
+        {error && !loading && (
           <div className="text-center mb-4">
             <p className="text-destructive mb-3">{error}</p>
             <button
@@ -219,6 +240,9 @@ export default function Discover() {
           allDestinations={destinations}
           onClose={() => setSelected(null)}
           onSwitch={(d) => setSelected(d)}
+          onNavigate={(index) => setSelected(destinations[index])}
+          currentIndex={destinations.indexOf(selected)}
+          totalCount={destinations.length}
         />
       )}
 
