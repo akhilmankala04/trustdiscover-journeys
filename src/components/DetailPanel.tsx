@@ -1,4 +1,4 @@
-import { X, Shield, Calendar, User } from 'lucide-react';
+import { X, Shield, Calendar, User, MapPin } from 'lucide-react';
 import type { Destination } from '@/types/destination';
 
 function scoreColor(score: number) {
@@ -130,6 +130,14 @@ export default function DetailPanel({
               Includes approx. travel from {departureCity} + accommodation + daily spend
             </p>
           </div>
+
+          {/* How to get there */}
+          {d.trip_context && (
+            <div className="flex items-center gap-2 text-sm text-foreground">
+              <MapPin className="w-4 h-4 text-primary" />
+              <span className="font-medium">How to get there:</span> {d.trip_context}
+            </div>
+          )}
 
           {/* Alternatives */}
           {d.trust_score < 80 && alternatives.length > 0 && (
