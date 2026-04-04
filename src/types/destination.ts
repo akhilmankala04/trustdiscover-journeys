@@ -9,6 +9,7 @@ export interface Destination {
   why_you: string;
   best_months: string;
   estimated_cost: string;
+  trip_context: string;
 }
 
 export interface UserContext {

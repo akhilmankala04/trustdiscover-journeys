@@ -39,6 +39,14 @@ export default function DestinationCard({
       {/* Cost */}
       <p className="text-sm font-semibold text-primary">{d.estimated_cost}</p>
 
+      {/* Trip context */}
+      {d.trip_context && (
+        <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+          <MapPin className="w-3 h-3 shrink-0" />
+          {d.trip_context}
+        </p>
+      )}
+
       {/* Bottom row */}
       <div className="flex items-center justify-between mt-auto pt-2">
         <span className="text-xs px-2.5 py-1 rounded-full bg-secondary text-secondary-foreground font-medium">

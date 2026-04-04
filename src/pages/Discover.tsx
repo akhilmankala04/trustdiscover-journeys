@@ -26,7 +26,8 @@ function isDestinationArray(value: unknown): value is Destination[] {
         typeof (item as Destination).region === 'string' &&
         typeof (item as Destination).why_you === 'string' &&
         typeof (item as Destination).best_months === 'string' &&
-        typeof (item as Destination).estimated_cost === 'string'
+        typeof (item as Destination).estimated_cost === 'string' &&
+        typeof (item as Destination).trip_context === 'string'
     )
   );
 }
