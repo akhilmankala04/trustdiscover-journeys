@@ -132,11 +132,32 @@ export default function Discover() {
     run();
   }, []);
 
-  const handleRetry = () => {
+  const handleRetry = useCallback(async () => {
     inflightPromise = null;
     inflightSessionId = null;
-    window.location.reload();
-  };
+    setError('');
+    setLoading(true);
+    setMsgIndex(0);
+    setFade(true);
+
+    if (!userCtx) return;
+    const sessionId = localStorage.getItem('session_id');
+    if (!sessionId) {
+      setError('No session found. Please start over.');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const parsed = await fetchDestinations(userCtx, sessionId);
+      setDestinations(parsed);
+    } catch (e) {
+      console.error(e);
+      setError('Failed to get recommendations. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  }, [userCtx]);
 
   const handleConfirmStartOver = useCallback(() => {
     setShowStartOver(false);
