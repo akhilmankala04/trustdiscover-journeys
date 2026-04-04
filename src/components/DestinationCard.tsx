@@ -1,4 +1,4 @@
-import { Shield } from 'lucide-react';
+import { Shield, MapPin } from 'lucide-react';
 import type { Destination } from '@/types/destination';
 
 function scoreColor(score: number) {
