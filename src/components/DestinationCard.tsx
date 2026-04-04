@@ -1,5 +1,6 @@
 import { Shield, MapPin } from 'lucide-react';
 import type { Destination } from '@/types/destination';
+import TrustScoreTooltip from '@/components/TrustScoreTooltip';
 
 function scoreColor(score: number) {
   if (score >= 80) return 'bg-emerald-500';
@@ -28,6 +29,7 @@ export default function DestinationCard({
           {d.trust_score}
         </div>
         <span className="text-sm font-medium text-foreground">{d.trust_label}</span>
+        <TrustScoreTooltip />
       </div>
 
       {/* Safety signal */}

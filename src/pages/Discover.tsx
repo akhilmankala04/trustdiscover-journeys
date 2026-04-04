@@ -1,11 +1,18 @@
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Shield } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { Skeleton } from '@/components/ui/skeleton';
 import DestinationCard from '@/components/DestinationCard';
 import DetailPanel from '@/components/DetailPanel';
+import StartOverDialog from '@/components/StartOverDialog';
 import type { Destination, UserContext } from '@/types/destination';
+
+const LOADING_MESSAGES = [
+  'Analysing destinations near you…',
+  'Scoring trust signals…',
+  'Personalising your feed…',
+];
 
 let inflightPromise: Promise<Destination[]> | null = null;
 let inflightSessionId: string | null = null;
@@ -41,10 +48,7 @@ async function fetchDestinations(ctx: UserContext, sessionId: string): Promise<D
 
   inflightPromise = (async () => {
     const { data, error } = await supabase.functions.invoke('generate-destinations', {
-      body: {
-        ctx,
-        sessionId,
-      },
+      body: { ctx, sessionId },
     });
 
     if (error) {
@@ -66,11 +70,28 @@ async function fetchDestinations(ctx: UserContext, sessionId: string): Promise<D
 }
 
 export default function Discover() {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [userCtx, setUserCtx] = useState<UserContext | null>(null);
   const [selected, setSelected] = useState<Destination | null>(null);
   const [error, setError] = useState('');
+  const [msgIndex, setMsgIndex] = useState(0);
+  const [fade, setFade] = useState(true);
+  const [showStartOver, setShowStartOver] = useState(false);
+
+  // Cycling loading messages
+  useEffect(() => {
+    if (!loading) return;
+    const interval = setInterval(() => {
+      setFade(false);
+      setTimeout(() => {
+        setMsgIndex((prev) => (prev + 1) % LOADING_MESSAGES.length);
+        setFade(true);
+      }, 300);
+    }, 2500);
+    return () => clearInterval(interval);
+  }, [loading]);
 
   useEffect(() => {
     const run = async () => {
@@ -117,6 +138,11 @@ export default function Discover() {
     window.location.reload();
   };
 
+  const handleConfirmStartOver = useCallback(() => {
+    setShowStartOver(false);
+    navigate('/');
+  }, [navigate]);
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <header className="bg-primary px-4 sm:px-6 py-3 flex items-center justify-between">
@@ -125,9 +151,12 @@ export default function Discover() {
           <span className="text-lg font-semibold text-primary-foreground">Trust Your Journey</span>
         </div>
 
-        <Link to="/" className="text-sm text-primary-foreground/80 hover:text-primary-foreground">
+        <button
+          onClick={() => setShowStartOver(true)}
+          className="text-sm text-primary-foreground/80 hover:text-primary-foreground"
+        >
           Start over
-        </Link>
+        </button>
       </header>
 
       <main className="flex-1 px-4 sm:px-6 py-8 max-w-4xl mx-auto w-full">
@@ -145,8 +174,10 @@ export default function Discover() {
 
         {loading ? (
           <div className="space-y-6">
-            <p className="text-center text-muted-foreground font-medium">
-              Finding your perfect destinations…
+            <p
+              className={`text-center text-muted-foreground font-medium transition-opacity duration-300 ${fade ? 'opacity-100' : 'opacity-0'}`}
+            >
+              {LOADING_MESSAGES[msgIndex]}
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -156,15 +187,27 @@ export default function Discover() {
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {destinations.map((d) => (
-              <DestinationCard
-                key={d.name}
-                destination={d}
-                onDetails={() => setSelected(d)}
-              />
-            ))}
-          </div>
+          <>
+            {userCtx && (
+              <div className="mb-4 space-y-0.5">
+                <p className="text-xs text-muted-foreground">
+                  Showing results for Safety level {userCtx.safety_sensitivity}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  6 destinations matched your context
+                </p>
+              </div>
+            )}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {destinations.map((d) => (
+                <DestinationCard
+                  key={d.name}
+                  destination={d}
+                  onDetails={() => setSelected(d)}
+                />
+              ))}
+            </div>
+          </>
         )}
       </main>
 
@@ -178,6 +221,12 @@ export default function Discover() {
           onSwitch={(d) => setSelected(d)}
         />
       )}
+
+      <StartOverDialog
+        open={showStartOver}
+        onConfirm={handleConfirmStartOver}
+        onCancel={() => setShowStartOver(false)}
+      />
     </div>
   );
 }

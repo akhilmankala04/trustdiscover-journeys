@@ -1,5 +1,6 @@
 import { X, Shield, Calendar, User, MapPin } from 'lucide-react';
 import type { Destination } from '@/types/destination';
+import TrustScoreTooltip from '@/components/TrustScoreTooltip';
 
 function scoreColor(score: number) {
   if (score >= 80) return 'bg-emerald-500';
@@ -45,29 +46,26 @@ export default function DetailPanel({
 
   return (
     <>
-      {/* Backdrop */}
       <div className="fixed inset-0 bg-black/40 z-40" onClick={onClose} />
 
-      {/* Panel */}
       <div className="fixed top-0 right-0 h-full z-50 bg-card shadow-xl overflow-y-auto w-full md:w-[60%] animate-in slide-in-from-right duration-300">
         <div className="p-6 space-y-6">
-          {/* Close */}
           <button onClick={onClose} className="absolute top-4 right-4 p-2 hover:bg-muted rounded-lg">
             <X className="w-5 h-5 text-foreground" />
           </button>
 
-          {/* Header */}
           <div>
             <h2 className="text-2xl font-bold text-foreground pr-10">{d.name}</h2>
             <p className="text-sm text-muted-foreground">{d.region}</p>
           </div>
 
-          {/* Trust badge */}
+          {/* Trust badge with tooltip */}
           <div className="flex items-center gap-3">
             <div className={`${scoreColor(d.trust_score)} text-white rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold`}>
               {d.trust_score}
             </div>
             <span className="font-medium text-foreground">{d.trust_label}</span>
+            <TrustScoreTooltip />
           </div>
 
           <p className="italic text-muted-foreground">{d.tagline}</p>
