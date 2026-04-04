@@ -240,6 +240,9 @@ export default function Discover() {
           allDestinations={destinations}
           onClose={() => setSelected(null)}
           onSwitch={(d) => setSelected(d)}
+          onNavigate={(index) => setSelected(destinations[index])}
+          currentIndex={destinations.indexOf(selected)}
+          totalCount={destinations.length}
         />
       )}
 

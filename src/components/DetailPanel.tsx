@@ -1,4 +1,5 @@
-import { X, Shield, Calendar, User, MapPin } from 'lucide-react';
+import { X, Shield, Calendar, User, MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import type { Destination } from '@/types/destination';
 import TrustScoreTooltip from '@/components/TrustScoreTooltip';
 
@@ -20,6 +21,9 @@ export default function DetailPanel({
   allDestinations,
   onClose,
   onSwitch,
+  onNavigate,
+  currentIndex,
+  totalCount,
 }: {
   destination: Destination;
   safetySensitivity: number;
@@ -27,8 +31,39 @@ export default function DetailPanel({
   allDestinations: Destination[];
   onClose: () => void;
   onSwitch: (d: Destination) => void;
+  onNavigate: (index: number) => void;
+  currentIndex: number;
+  totalCount: number;
 }) {
   const d = destination;
+  const [slideDir, setSlideDir] = useState<'left' | 'right' | null>(null);
+  const [animating, setAnimating] = useState(false);
+
+  useEffect(() => {
+    if (slideDir) {
+      setAnimating(true);
+      const t = setTimeout(() => {
+        setAnimating(false);
+        setSlideDir(null);
+      }, 250);
+      return () => clearTimeout(t);
+    }
+  }, [slideDir, destination]);
+
+  const goNext = () => {
+    if (currentIndex < totalCount - 1) {
+      setSlideDir('left');
+      onNavigate(currentIndex + 1);
+    }
+  };
+
+  const goPrev = () => {
+    if (currentIndex > 0) {
+      setSlideDir('right');
+      onNavigate(currentIndex - 1);
+    }
+  };
+
   const trustBars = [
     { label: 'Photo authenticity', offset: 3 },
     { label: 'Review pattern', offset: -5 },
@@ -44,19 +79,46 @@ export default function DetailPanel({
   const soloCommunity = d.trust_score > 79 ? 'Active community' : 'Limited community';
   const lateNight = d.trust_score > 74 ? 'Available' : 'Limited';
 
+  const slideClass = animating
+    ? slideDir === 'left'
+      ? 'animate-fade-in'
+      : 'animate-fade-in'
+    : '';
+
   return (
     <>
       <div className="fixed inset-0 bg-black/40 z-40" onClick={onClose} />
 
       <div className="fixed top-0 right-0 h-full z-50 bg-card shadow-xl overflow-y-auto w-full md:w-[60%] animate-in slide-in-from-right duration-300">
-        <div className="p-6 space-y-6">
-          <button onClick={onClose} className="absolute top-4 right-4 p-2 hover:bg-muted rounded-lg">
-            <X className="w-5 h-5 text-foreground" />
-          </button>
+        <div className={`p-6 space-y-6 ${slideClass}`}>
+          {/* Header with nav arrows */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={goPrev}
+              disabled={currentIndex === 0}
+              className="w-11 h-11 flex items-center justify-center rounded-lg hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors shrink-0"
+              aria-label="Previous destination"
+            >
+              <ChevronLeft className="w-5 h-5 text-foreground" />
+            </button>
 
-          <div>
-            <h2 className="text-2xl font-bold text-foreground pr-10">{d.name}</h2>
-            <p className="text-sm text-muted-foreground">{d.region}</p>
+            <div className="flex-1 min-w-0">
+              <h2 className="text-2xl font-bold text-foreground truncate">{d.name}</h2>
+              <p className="text-sm text-muted-foreground">{d.region}</p>
+            </div>
+
+            <button
+              onClick={goNext}
+              disabled={currentIndex === totalCount - 1}
+              className="w-11 h-11 flex items-center justify-center rounded-lg hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors shrink-0"
+              aria-label="Next destination"
+            >
+              <ChevronRight className="w-5 h-5 text-foreground" />
+            </button>
+
+            <button onClick={onClose} className="p-2 hover:bg-muted rounded-lg shrink-0">
+              <X className="w-5 h-5 text-foreground" />
+            </button>
           </div>
 
           {/* Trust badge with tooltip */}
@@ -143,16 +205,24 @@ export default function DetailPanel({
               <h3 className="font-semibold text-foreground mb-3">Not fully verified? Try these instead</h3>
               <div className="grid gap-3">
                 {alternatives.map((alt) => (
-                  <div key={alt.name} className="flex items-center justify-between p-3 border border-border rounded-xl bg-card">
-                    <div className="flex items-center gap-3">
-                      <div className={`${scoreColor(alt.trust_score)} text-white rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold`}>
-                        {alt.trust_score}
+                  <div key={alt.name} className="border border-border border-l-4 border-l-primary rounded-xl bg-card p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="font-bold text-foreground">{alt.name}</p>
+                        <p className="text-xs text-muted-foreground">{alt.region}</p>
                       </div>
-                      <span className="font-medium text-foreground">{alt.name}</span>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <div className={`${scoreColor(alt.trust_score)} text-white rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold`}>
+                          {alt.trust_score}
+                        </div>
+                        <span className="text-xs font-medium text-foreground">{alt.trust_label}</span>
+                      </div>
                     </div>
-                    <button onClick={() => onSwitch(alt)} className="text-sm font-semibold text-primary hover:underline">
-                      View
-                    </button>
+                    <div className="flex justify-end mt-2">
+                      <button onClick={() => onSwitch(alt)} className="text-sm font-semibold text-primary hover:underline">
+                        View
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
