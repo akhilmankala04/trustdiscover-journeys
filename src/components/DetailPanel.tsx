@@ -1,4 +1,4 @@
-import { X, Shield, Calendar, User } from 'lucide-react';
+import { X, Shield, Calendar, User, MapPin } from 'lucide-react';
 import type { Destination } from '@/types/destination';
 
 function scoreColor(score: number) {
